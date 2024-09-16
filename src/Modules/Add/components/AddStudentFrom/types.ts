@@ -4,12 +4,11 @@ export type AddFormData = {
   firstName: string;
   lastName: string;
   guardianName: string;
-  age: number;
+  dateOfBirth: string;
   gender: Gender;
   mobileNumber: string;
   email: string;
   address: string;
   city: string;
   state: string;
-  pincode: string;
 };

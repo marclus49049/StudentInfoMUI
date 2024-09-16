@@ -1,55 +1,114 @@
 import {
+  Autocomplete,
   Box,
   Button,
   FormControl,
   FormControlLabel,
+  FormHelperText,
   FormLabel,
+  InputLabel,
   MenuItem,
   Radio,
   RadioGroup,
   Select,
+  SelectChangeEvent,
   TextField,
 } from "@mui/material";
-import React, { SyntheticEvent, useMemo, useState } from "react";
+import React, { SyntheticEvent, useContext, useMemo, useState } from "react";
 import { AddFormData, Gender } from "./types";
 import { states } from "./constant";
-import { stat } from "fs";
+import { DatePicker } from "@mui/x-date-pickers";
+import dayjs, { Dayjs } from "dayjs";
+import { DATE_FORMAT, DATE_FORMAT_DISPLAY } from "../../../../constants";
+import {
+  AddFromLocalData,
+  StudentContext,
+  StudentContextType,
+} from "../../../../context/StudentContext";
+import { generateId } from "../../../../utils/generateId";
 
 function AddStudentFrom() {
+  // Context
+  const { setStudentData } =
+    useContext<StudentContextType>(StudentContext) || {};
   // States
+
+  // Form States
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [guardianName, setGuardianName] = useState<string>("");
-  const [age, setAge] = useState<string>("");
+  const [dateOfBirth, setDateOfBirth] = useState<Dayjs | null>(null);
   const [gender, setGender] = useState<Gender>("female");
   const [mobileNumber, setMobileNumber] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [address, setAddress] = useState<string>("");
   const [city, setCity] = useState<string>("");
   const [state, setState] = useState<string>("");
-  const [pincode, setPincode] = useState<string>("");
+
+  const [cityInputValue, setCityInputValue] = useState<string>("");
+
+  const [inputErrors, setInputErrors] = useState<
+    Record<keyof AddFormData, string>
+  >({
+    firstName: "",
+    lastName: "",
+    guardianName: "",
+    dateOfBirth: "",
+    gender: "",
+    mobileNumber: "",
+    email: "",
+    address: "",
+    city: "",
+    state: "",
+  });
 
   // Memo
   const stateOptions = useMemo(() => {
     return Object.keys(states || {});
   }, []);
+  const cityOptions = useMemo(() => {
+    return state ? states?.[state] : [];
+  }, [state]);
 
-  // Handler functions
-  const handleSubmit = (e: SyntheticEvent) => {
-    e?.stopPropagation();
-  };
-  const handleClear = () => {
+  const clearData = () => {
     setFirstName("");
     setLastName("");
     setGuardianName("");
-    setAge("");
+    setDateOfBirth(null);
     setGender("female");
     setMobileNumber("");
     setEmail("");
     setAddress("");
     setCity("");
+    setCityInputValue("");
     setState("");
-    setPincode("");
+  };
+  // Handler functions
+  const handleClear = () => {
+    clearData();
+  };
+  const handleSubmit = (e: SyntheticEvent) => {
+    e?.stopPropagation();
+    let data: AddFromLocalData = {
+      _id: generateId(),
+      firstName,
+      lastName,
+      guardianName,
+      dateOfBirth: dateOfBirth?.format(DATE_FORMAT) || "",
+      gender,
+      mobileNumber,
+      email,
+      address,
+      city,
+      state,
+    };
+
+    if (setStudentData) {
+      setStudentData((prev) => {
+        return [...prev, data];
+      });
+      clearData();
+    }
   };
 
   const handleFirstNameChange = (e: SyntheticEvent) => {
@@ -61,6 +120,50 @@ function AddStudentFrom() {
     e?.stopPropagation();
     let value = (e?.target as any)?.value;
     setLastName(value);
+  };
+  const handleGuardianNameChange = (e: SyntheticEvent) => {
+    e?.stopPropagation();
+    let value = (e?.target as any)?.value;
+    setGuardianName(value);
+  };
+  const handleDateOfBirthChange = (value: Dayjs | null) => {
+    setDateOfBirth(value);
+  };
+  const handleMobileNumberChange = (e: SyntheticEvent) => {
+    e?.stopPropagation();
+    let value = (e?.target as any)?.value;
+    setMobileNumber(value);
+  };
+  const handleGenderChange = (e: SyntheticEvent) => {
+    e?.stopPropagation();
+    let value = (e?.target as any)?.value;
+    setGender(value);
+  };
+  const handleStateChange = (e: SelectChangeEvent<string>) => {
+    e?.stopPropagation();
+    let value = e?.target?.value;
+    setState(value);
+  };
+  const handleEmailChange = (e: SyntheticEvent) => {
+    e?.stopPropagation();
+    let value = (e?.target as any)?.value;
+    setEmail(value);
+  };
+  const handleAddressChange = (e: SyntheticEvent) => {
+    e?.stopPropagation();
+    let value = (e?.target as any)?.value;
+    setAddress(value);
+  };
+  const handleCityChange = (e: SyntheticEvent, newValue: string | null) => {
+    e?.stopPropagation();
+    setCity(newValue || "");
+  };
+  const handleCityInputValueChange = (
+    e: SyntheticEvent,
+    newValue: string | null
+  ) => {
+    e?.stopPropagation();
+    setCityInputValue(newValue || "");
   };
 
   return (
@@ -79,6 +182,8 @@ function AddStudentFrom() {
         value={firstName}
         type="text"
         onChange={handleFirstNameChange}
+        error={Boolean(inputErrors?.firstName)}
+        helperText={inputErrors?.firstName}
       />
       <TextField
         id="lastName"
@@ -86,39 +191,123 @@ function AddStudentFrom() {
         value={lastName}
         type="text"
         onChange={handleLastNameChange}
+        error={Boolean(inputErrors?.lastName)}
+        helperText={inputErrors?.lastName}
       />
       <TextField
         id="guardianName"
         label="Guardian Name"
         value={guardianName}
         type="text"
+        onChange={handleGuardianNameChange}
+        error={Boolean(inputErrors?.guardianName)}
+        helperText={inputErrors?.guardianName}
       />
-      <FormControl>
+
+      <DatePicker
+        label="Date of birth"
+        value={dateOfBirth ? dayjs(dateOfBirth, DATE_FORMAT) : null}
+        onChange={handleDateOfBirthChange}
+        onError={(newError) =>
+          setInputErrors((prev) => ({
+            ...prev,
+            dateOfBirth: newError?.toString() || "",
+          }))
+        }
+        slotProps={{
+          textField: {
+            error: Boolean(inputErrors?.dateOfBirth),
+            helperText: inputErrors?.dateOfBirth,
+          },
+        }}
+        disableFuture
+        format={DATE_FORMAT_DISPLAY}
+      />
+
+      <FormControl error={Boolean(inputErrors?.gender)}>
         <FormLabel>Gender</FormLabel>
-        <RadioGroup value={gender} name="gender">
+        <RadioGroup value={gender} name="gender" onChange={handleGenderChange}>
           <FormControlLabel value="female" control={<Radio />} label="Female" />
           <FormControlLabel value="male" control={<Radio />} label="Male" />
         </RadioGroup>
+        {Boolean(inputErrors?.gender) && (
+          <FormHelperText>{inputErrors?.gender}</FormHelperText>
+        )}
       </FormControl>
-      <TextField id="email" label="Email" value={email} type="email" />
+
+      <TextField
+        id="mobileNumber"
+        label="Mobile Number"
+        value={mobileNumber}
+        type="tel"
+        onChange={handleMobileNumberChange}
+        error={Boolean(inputErrors?.mobileNumber)}
+        helperText={inputErrors?.mobileNumber}
+      />
+
+      <TextField
+        id="email"
+        label="Email"
+        value={email}
+        type="email"
+        onChange={handleEmailChange}
+        error={Boolean(inputErrors?.email)}
+        helperText={inputErrors?.email}
+      />
+
       <TextField
         id="address"
         label="Address"
         value={address}
         type="text"
         multiline
-        rows={2}
-        maxRows={6}
+        rows={4}
+        onChange={handleAddressChange}
+        error={Boolean(inputErrors?.address)}
+        helperText={inputErrors?.address}
       />
-      <Select id="state" label="State" placeholder="Select Sate" value={state}>
-        {stateOptions?.map((state) => (
-          <MenuItem key={state} value={state}>
-            {state}
-          </MenuItem>
-        ))}
-      </Select>
-      <TextField id="city" label="City" value={city} />
-      <TextField id="pincode" label="Pincode" value={pincode} />
+      <FormControl error={Boolean(inputErrors?.state)}>
+        <InputLabel id="demo-simple-select-helper-label">State</InputLabel>
+        <Select
+          id="state"
+          label="State"
+          placeholder="Select Sate"
+          value={state}
+          onChange={handleStateChange}
+          MenuProps={{
+            sx: {
+              maxHeight: "500px",
+            },
+          }}
+        >
+          {stateOptions?.map((state) => (
+            <MenuItem key={state} value={state}>
+              {state}
+            </MenuItem>
+          ))}
+        </Select>
+        {Boolean(inputErrors?.state) && (
+          <FormHelperText>{inputErrors?.state}</FormHelperText>
+        )}
+      </FormControl>
+
+      <Autocomplete
+        id="city"
+        options={cityOptions}
+        value={city}
+        onChange={handleCityChange}
+        inputValue={cityInputValue}
+        onInputChange={handleCityInputValueChange}
+        disabled={!state}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            error={Boolean(inputErrors?.city)}
+            helperText={inputErrors?.city}
+            label="City"
+          />
+        )}
+      />
 
       <Box
         sx={{

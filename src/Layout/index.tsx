@@ -2,6 +2,8 @@ import { Box } from "@mui/material";
 import React, { ReactNode } from "react";
 import Sidebar from "../components/sidebar";
 import { colors } from "../colors";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 type Props = {
   children: ReactNode;
@@ -31,7 +33,9 @@ const Layout = ({ children }: Props) => {
           background: colors?.gray[500],
         }}
       >
-        {children}
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          {children}
+        </LocalizationProvider>
       </Box>
     </Box>
   );

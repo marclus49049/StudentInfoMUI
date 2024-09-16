@@ -1,4 +1,4 @@
-export const states = {
+export const states: Record<string, Array<string>> = {
   "Andaman and Nicobar Islands": ["Port Blair"],
   Haryana: [
     "Faridabad",
