@@ -26,6 +26,7 @@ import {
   StudentContextType,
 } from "../../../../context/StudentContext";
 import { generateId } from "../../../../utils/generateId";
+import { validateEmail, validateMobile, validateRequired } from "./validations";
 
 function AddStudentFrom() {
   // Context
@@ -70,6 +71,10 @@ function AddStudentFrom() {
     return state ? states?.[state] : [];
   }, [state]);
 
+  const formError = useMemo(() => {
+    return Boolean(Object.values(inputErrors || {})?.some((error) => error));
+  }, [inputErrors]);
+
   const clearData = () => {
     setFirstName("");
     setLastName("");
@@ -82,6 +87,19 @@ function AddStudentFrom() {
     setCity("");
     setCityInputValue("");
     setState("");
+
+    setInputErrors({
+      firstName: "",
+      lastName: "",
+      guardianName: "",
+      dateOfBirth: "",
+      gender: "",
+      mobileNumber: "",
+      email: "",
+      address: "",
+      city: "",
+      state: "",
+    });
   };
   // Handler functions
   const handleClear = () => {
@@ -103,7 +121,21 @@ function AddStudentFrom() {
       state,
     };
 
-    if (setStudentData) {
+    // Validate if all fields are filled
+    let hasError = false;
+    Object.entries(data)?.forEach(([key, value]: [string, string]) => {
+      if (key !== "_id") {
+        let error = validateRequired(value);
+        if (error) {
+          hasError = true;
+        }
+        setInputErrors((prev: any) => {
+          return { ...prev, [key]: error };
+        });
+      }
+    });
+
+    if (!hasError && setStudentData) {
       setStudentData((prev) => {
         return [...prev, data];
       });
@@ -115,16 +147,25 @@ function AddStudentFrom() {
     e?.stopPropagation();
     let value = (e?.target as any)?.value;
     setFirstName(value);
+
+    setInputErrors((prev) => ({ ...prev, firstName: validateRequired(value) }));
   };
   const handleLastNameChange = (e: SyntheticEvent) => {
     e?.stopPropagation();
     let value = (e?.target as any)?.value;
     setLastName(value);
+
+    setInputErrors((prev) => ({ ...prev, lastName: validateRequired(value) }));
   };
   const handleGuardianNameChange = (e: SyntheticEvent) => {
     e?.stopPropagation();
     let value = (e?.target as any)?.value;
     setGuardianName(value);
+
+    setInputErrors((prev) => ({
+      ...prev,
+      guardianName: validateRequired(value),
+    }));
   };
   const handleDateOfBirthChange = (value: Dayjs | null) => {
     setDateOfBirth(value);
@@ -133,6 +174,11 @@ function AddStudentFrom() {
     e?.stopPropagation();
     let value = (e?.target as any)?.value;
     setMobileNumber(value);
+
+    setInputErrors((prev) => ({
+      ...prev,
+      mobileNumber: validateMobile(value),
+    }));
   };
   const handleGenderChange = (e: SyntheticEvent) => {
     e?.stopPropagation();
@@ -143,20 +189,35 @@ function AddStudentFrom() {
     e?.stopPropagation();
     let value = e?.target?.value;
     setState(value);
+
+    setInputErrors((prev) => ({
+      ...prev,
+      state: validateRequired(value),
+      city: "",
+    }));
   };
   const handleEmailChange = (e: SyntheticEvent) => {
     e?.stopPropagation();
     let value = (e?.target as any)?.value;
     setEmail(value);
+
+    setInputErrors((prev) => ({ ...prev, email: validateEmail(value) }));
   };
   const handleAddressChange = (e: SyntheticEvent) => {
     e?.stopPropagation();
     let value = (e?.target as any)?.value;
     setAddress(value);
+
+    setInputErrors((prev) => ({ ...prev, address: validateRequired(value) }));
   };
   const handleCityChange = (e: SyntheticEvent, newValue: string | null) => {
     e?.stopPropagation();
     setCity(newValue || "");
+
+    setInputErrors((prev) => ({
+      ...prev,
+      city: validateRequired(newValue || ""),
+    }));
   };
   const handleCityInputValueChange = (
     e: SyntheticEvent,
@@ -184,6 +245,7 @@ function AddStudentFrom() {
         onChange={handleFirstNameChange}
         error={Boolean(inputErrors?.firstName)}
         helperText={inputErrors?.firstName}
+        required
       />
       <TextField
         id="lastName"
@@ -193,6 +255,7 @@ function AddStudentFrom() {
         onChange={handleLastNameChange}
         error={Boolean(inputErrors?.lastName)}
         helperText={inputErrors?.lastName}
+        required
       />
       <TextField
         id="guardianName"
@@ -202,10 +265,11 @@ function AddStudentFrom() {
         onChange={handleGuardianNameChange}
         error={Boolean(inputErrors?.guardianName)}
         helperText={inputErrors?.guardianName}
+        required
       />
 
       <DatePicker
-        label="Date of birth"
+        label="Date of birth *"
         value={dateOfBirth ? dayjs(dateOfBirth, DATE_FORMAT) : null}
         onChange={handleDateOfBirthChange}
         onError={(newError) =>
@@ -224,7 +288,7 @@ function AddStudentFrom() {
         format={DATE_FORMAT_DISPLAY}
       />
 
-      <FormControl error={Boolean(inputErrors?.gender)}>
+      <FormControl error={Boolean(inputErrors?.gender)} required>
         <FormLabel>Gender</FormLabel>
         <RadioGroup value={gender} name="gender" onChange={handleGenderChange}>
           <FormControlLabel value="female" control={<Radio />} label="Female" />
@@ -243,6 +307,7 @@ function AddStudentFrom() {
         onChange={handleMobileNumberChange}
         error={Boolean(inputErrors?.mobileNumber)}
         helperText={inputErrors?.mobileNumber}
+        required
       />
 
       <TextField
@@ -253,6 +318,7 @@ function AddStudentFrom() {
         onChange={handleEmailChange}
         error={Boolean(inputErrors?.email)}
         helperText={inputErrors?.email}
+        required
       />
 
       <TextField
@@ -265,8 +331,9 @@ function AddStudentFrom() {
         onChange={handleAddressChange}
         error={Boolean(inputErrors?.address)}
         helperText={inputErrors?.address}
+        required
       />
-      <FormControl error={Boolean(inputErrors?.state)}>
+      <FormControl error={Boolean(inputErrors?.state)} required>
         <InputLabel id="demo-simple-select-helper-label">State</InputLabel>
         <Select
           id="state"
@@ -305,6 +372,7 @@ function AddStudentFrom() {
             error={Boolean(inputErrors?.city)}
             helperText={inputErrors?.city}
             label="City"
+            required
           />
         )}
       />
@@ -321,6 +389,7 @@ function AddStudentFrom() {
           variant="contained"
           onClick={handleSubmit}
           fullWidth
+          disabled={formError}
         >
           {" "}
           Submit{" "}
