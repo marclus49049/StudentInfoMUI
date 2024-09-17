@@ -7,21 +7,20 @@ import {
   DataGrid,
   GridActionsCellItem,
   GridColDef,
-  GridEditSingleSelectCell,
   GridEventListener,
+  GridPreProcessEditCellProps,
   GridRowEditStopReasons,
   GridRowId,
   GridRowModel,
   GridRowModes,
   GridRowModesModel,
-  useGridApiContext,
 } from "@mui/x-data-grid";
 import { Box, Button, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { DATE_FORMAT } from "../../../../constants";
 import {
   validateEmail,
@@ -100,6 +99,13 @@ function StudentsTable() {
     setRowModesModel(newRowModesModel);
   };
 
+  const validateCell = (
+    params: GridPreProcessEditCellProps<any, any>,
+    validateFun: (value: string) => boolean | string
+  ) => {
+    const hasError = validateFun(params.props.value);
+    return { ...params.props, error: Boolean(hasError) };
+  };
   const columsWithAction: GridColDef[] = [
     { field: "_id", headerName: "ID", width: 100 },
     {
@@ -108,11 +114,8 @@ function StudentsTable() {
       type: "string",
       width: 100,
       editable: true,
-      preProcessEditCellProps: (params) => {
-        // const isPaidProps = params.otherFieldsProps!.isPaid;
-        const hasError = validateRequired(params.props.value);
-        return { ...params.props, error: hasError };
-      },
+      preProcessEditCellProps: (params) =>
+        validateCell(params, validateRequired),
     },
     {
       field: "lastName",
@@ -120,10 +123,8 @@ function StudentsTable() {
       type: "string",
       width: 100,
       editable: true,
-      preProcessEditCellProps: (params) => {
-        const hasError = validateRequired(params.props.value);
-        return { ...params.props, error: hasError };
-      },
+      preProcessEditCellProps: (params) =>
+        validateCell(params, validateRequired),
     },
     {
       field: "guardianName",
@@ -131,10 +132,8 @@ function StudentsTable() {
       type: "string",
       width: 100,
       editable: true,
-      preProcessEditCellProps: (params) => {
-        const hasError = validateRequired(params.props.value);
-        return { ...params.props, error: hasError };
-      },
+      preProcessEditCellProps: (params) =>
+        validateCell(params, validateRequired),
     },
     {
       field: "dateOfBirth",
@@ -148,6 +147,8 @@ function StudentsTable() {
         }
         return dayjs(value, DATE_FORMAT)?.toDate();
       },
+      preProcessEditCellProps: (params) =>
+        validateCell(params, validateRequired),
     },
     {
       field: "gender",
@@ -156,6 +157,8 @@ function StudentsTable() {
       editable: true,
       type: "singleSelect",
       valueOptions: ["male", "female"],
+      preProcessEditCellProps: (params) =>
+        validateCell(params, validateRequired),
     },
     {
       field: "mobileNumber",
@@ -163,10 +166,7 @@ function StudentsTable() {
       type: "string",
       width: 130,
       editable: true,
-      preProcessEditCellProps: (params) => {
-        const hasError = validateMobile(params.props.value);
-        return { ...params.props, error: hasError };
-      },
+      preProcessEditCellProps: (params) => validateCell(params, validateMobile),
     },
     {
       field: "email",
@@ -174,10 +174,7 @@ function StudentsTable() {
       type: "string",
       width: 130,
       editable: true,
-      preProcessEditCellProps: (params) => {
-        const hasError = validateEmail(params.props.value);
-        return { ...params.props, error: hasError };
-      },
+      preProcessEditCellProps: (params) => validateCell(params, validateEmail),
     },
     {
       field: "address",
@@ -185,10 +182,8 @@ function StudentsTable() {
       type: "string",
       width: 200,
       editable: true,
-      preProcessEditCellProps: (params) => {
-        const hasError = validateRequired(params.props.value);
-        return { ...params.props, error: hasError };
-      },
+      preProcessEditCellProps: (params) =>
+        validateCell(params, validateRequired),
     },
     {
       field: "state",
@@ -209,10 +204,8 @@ function StudentsTable() {
           }}
         />
       ),
-      preProcessEditCellProps: (params) => {
-        const hasError = validateRequired(params.props.value);
-        return { ...params.props, error: hasError };
-      },
+      preProcessEditCellProps: (params) =>
+        validateCell(params, validateRequired),
     },
     {
       field: "city",
@@ -226,10 +219,8 @@ function StudentsTable() {
         }
         return states?.[row?.state] || [];
       },
-      preProcessEditCellProps: (params) => {
-        const hasError = validateRequired(params.props.value);
-        return { ...params.props, error: hasError };
-      },
+      preProcessEditCellProps: (params) =>
+        validateCell(params, validateRequired),
     },
     {
       field: "actions",
