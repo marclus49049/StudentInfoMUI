@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import React, { SyntheticEvent, useContext, useMemo, useState } from "react";
 import { AddFormData, Gender } from "./types";
-import { states } from "./constant";
+import { getCities, getStates, states } from "../../../../constants/states";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import { DATE_FORMAT, DATE_FORMAT_DISPLAY } from "../../../../constants";
@@ -65,10 +65,10 @@ function AddStudentFrom() {
 
   // Memo
   const stateOptions = useMemo(() => {
-    return Object.keys(states || {});
+    return getStates();
   }, []);
   const cityOptions = useMemo(() => {
-    return state ? states?.[state] : [];
+    return getCities(state);
   }, [state]);
 
   const formError = useMemo(() => {

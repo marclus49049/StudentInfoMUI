@@ -27,7 +27,7 @@ import {
   validateMobile,
   validateRequired,
 } from "../../../Add/components/AddStudentFrom/validations";
-import { states } from "../../../Add/components/AddStudentFrom/constant";
+import { getCities, getStates, states } from "../../../../constants/states";
 import { Link } from "react-router-dom";
 import { CustomSelect } from "./CustomSelect";
 import { colors } from "../../../../colors";
@@ -191,7 +191,7 @@ function StudentsTable() {
       width: 100,
       editable: true,
       type: "singleSelect",
-      valueOptions: Object.keys(states),
+      valueOptions: getStates(),
       renderEditCell: (params) => (
         <CustomSelect
           {...params}
@@ -217,7 +217,7 @@ function StudentsTable() {
         if (!row?.state) {
           return [];
         }
-        return states?.[row?.state] || [];
+        return getCities(row?.state);
       },
       preProcessEditCellProps: (params) =>
         validateCell(params, validateRequired),

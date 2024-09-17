@@ -1250,3 +1250,11 @@ export const states: Record<string, Array<string>> = {
     "Adra",
   ],
 };
+
+export const getStates = () => {
+  return Object.keys(states || {})?.sort();
+};
+
+export const getCities = (selectedState: string) => {
+  return selectedState ? states?.[selectedState]?.sort() : [];
+};
