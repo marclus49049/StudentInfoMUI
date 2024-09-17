@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import React, { SyntheticEvent, useContext, useMemo, useState } from "react";
 import { AddFormData, Gender } from "./types";
-import { getCities, getStates, states } from "../../../../constants/states";
+import { getCities, getStates } from "../../../../constants/states";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
 import { DATE_FORMAT, DATE_FORMAT_DISPLAY } from "../../../../constants";
@@ -235,6 +235,7 @@ function AddStudentFrom() {
         flexDirection: "column",
         gap: "10px",
         padding: "20px",
+        flex: 1,
       }}
     >
       <TextField
@@ -382,6 +383,9 @@ function AddStudentFrom() {
           display: "flex",
           gap: "20px",
           padding: "0px 20px",
+          marginTop: "40px",
+          width: "400px",
+          alignSelf: "center",
         }}
       >
         <Button

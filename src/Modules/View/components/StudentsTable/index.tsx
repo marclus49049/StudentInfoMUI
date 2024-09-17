@@ -273,15 +273,14 @@ function StudentsTable() {
     <Box
       sx={{
         height: "auto",
-        padding: "20px 0px",
-        overflow: "auto",
+        marginTop: "20px",
+        flex: 1,
         ...(!hasData
           ? {
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
-              minHeight: "400px",
               gap: "40px",
             }
           : {}),
