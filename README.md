@@ -2,9 +2,16 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-# Getting Started with Create React App
+# About
 
 A simple react app to add and view student details using MUI components
+
+## Routes
+
+- /view
+  View all student details on MUI Data Grid component
+- /add
+  Add new student
 
 ## Available Scripts
 
