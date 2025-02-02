@@ -5,10 +5,12 @@ export const NAV_LINKS: NavLinks = [
     name: "view",
     icon: <></>,
     link: "/view",
+    visible: true,
   },
   {
     name: "add",
     icon: <></>,
     link: "/add",
+    visible: true,
   },
 ];
